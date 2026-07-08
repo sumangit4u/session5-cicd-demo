@@ -1,0 +1,10 @@
+# Keep the build context small and never ship secrets into the image.
+.env
+.venv/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+README.md
+test_main.py
+requirements-dev.txt

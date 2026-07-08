@@ -1,0 +1,9 @@
+# NEVER commit your API keys. This is the single most important line in the repo.
+# (The PDF's instructor note: without this, students risk pushing keys to a public Space.)
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+env/

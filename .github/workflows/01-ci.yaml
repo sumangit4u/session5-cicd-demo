@@ -1,0 +1,75 @@
+# ============================================================================
+# WORKFLOW 1 - CI ONLY (the "kitchen taste-tester")
+# ============================================================================
+# Continuous Integration without any # deployment. Every push and every pull 
+# request gets the same treatment:
+#
+#   commit  ->  clean VM  ->  install deps  ->  run tests  ->  build image
+#
+# Nothing ships anywhere. The goal is FAST FEEDBACK: a broken import, a failed
+# test, or a Dockerfile that no longer builds is caught minutes after the
+# commit - not after a manual deploy.
+#
+# Anatomy (the 3 pieces from the session):
+#   1. TRIGGER  - the `on:` block ("start cooking when ingredients arrive")
+#   2. JOBS     - isolated clean VMs (`test`, then `docker-build`)
+#   3. STEPS    - recipe lines executed top to bottom inside each job
+# ============================================================================
+
+name: CI - Test and Build GenAI App
+
+# ---- 1. THE TRIGGER --------------------------------------------------------
+# Run on every push to main AND on every pull request targeting main.
+# workflow_dispatch adds a manual "Run workflow" button in the Actions tab.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# ---- 2. THE JOBS -----------------------------------------------------------
+jobs:
+  # Job 1: unit tests on a clean Ubuntu VM. No leftover state, no "works on
+  # my machine" - the exact reproducibility argument from the session.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # ---- 3. THE STEPS ----
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r app/requirements.txt -r app/requirements-dev.txt
+
+      - name: Run unit tests
+        run: pytest app/ -v
+
+  # Job 2: prove the Dockerfile still builds and the container actually boots.
+  # `needs: test` makes it wait for Job 1 - if tests fail, we never even
+  # spend time building an image.
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t genai-app:${{ github.sha }} ./app
+
+      # Lightweight boot check (Session 5, Step 8): start the container,
+      # hit /health, and fail the pipeline if the app doesn't come up.
+      # No real API key is needed - /health reports "degraded" without one,
+      # which still proves the app boots.
+      - name: Smoke-test the container
+        run: |
+          docker run -d --rm --name smoke -p 8000:8000 genai-app:${{ github.sha }}
+          sleep 5
+          curl -f http://localhost:8000/health
+          docker stop smoke
