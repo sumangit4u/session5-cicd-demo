@@ -25,8 +25,7 @@
 #
 # Required GitHub repository secrets (Settings -> Secrets and variables -> Actions):
 #   AZURE_CREDENTIALS - JSON output of:
-#       az ad sp create-for-rbac --name genai-ci --role contributor \
-#         --scopes /subscriptions/<sub-id>/resourceGroups/genai-session4-rg --sdk-auth
+#       az ad sp create-for-rbac --name genai-ci --role contributor --scopes /subscriptions/c3ea1d5b-3d8d-4b4a-9078-981b0d250390/resourceGroups/genai-session4-rg --sdk-auth
 #   ACR_NAME          - your registry name WITHOUT .azurecr.io
 #                       (printed by 02-azure-container-apps/deploy.ps1|sh)
 #   GEMINI_API_KEY    - Gemini key, used only for the container smoke test here;
@@ -60,6 +59,27 @@ jobs:
       # ---- Step 3: Checkout repository --------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      # ---- Step 3.5: Fail fast if secrets are missing -------------------------
+      # A missing GitHub secret expands to an EMPTY STRING, not an error - which
+      # produces confusing failures much later (e.g. an invalid image tag like
+      # ".azurecr.io/app"). Catch that here with a readable message instead.
+      - name: Check required secrets
+        run: |
+          missing=0
+          if [ -z "${{ secrets.AZURE_CREDENTIALS }}" ]; then
+            echo "::error::Missing repository secret AZURE_CREDENTIALS (service principal JSON - see README Step 2)"
+            missing=1
+          fi
+          if [ -z "${{ secrets.ACR_NAME }}" ]; then
+            echo "::error::Missing repository secret ACR_NAME (registry name without .azurecr.io - find it with: az acr list --resource-group genai-session4-rg --query \"[].name\" -o tsv)"
+            missing=1
+          fi
+          if [ -z "${{ secrets.GEMINI_API_KEY }}" ]; then
+            echo "::error::Missing repository secret GEMINI_API_KEY (needed for the container smoke test)"
+            missing=1
+          fi
+          exit $missing
 
       # ---- Step 4: Run unit tests (the CI gate) ------------------------------
       # "Testing is mandatory: if tests fail, deployment never happens."
