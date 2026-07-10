@@ -3,30 +3,6 @@
 > **Where we are in the journey:** Hugging Face got our idea live fast. Now we move it
 > to a cloud built for scale, control, and reliability. 
 
-> ⚠️ **COST FIRST.** Everything below is created in **one resource group** and the app
-> is set to **scale to zero** (you pay only while it's serving requests). When you're
-> done, run **one command** — [`teardown.ps1`](teardown.ps1) / [`teardown.sh`](teardown.sh) —
-> to delete the app, its environment, and the registry together. 
-
-## Why Azure Container Apps?
-
-The PDF's food-truck analogy for Cloud Run applies unchanged: you bring the container,
-the platform provides the parking, power, crowd flow (load balancing), and extra trucks
-(autoscaling) on demand. **Azure Container Apps** is Azure's serverless container engine
-— scale-to-zero, HTTPS out of the box, per-request billing, integrated monitoring.
-
-## GCP → Azure service map (same concepts, different names)
-
-| The PDF's GCP service | Azure equivalent used here | Role |
-|-----------------------|----------------------------|------|
-| Cloud Run | **Azure Container Apps** | Run the container serverlessly, autoscale |
-| Artifact Registry | **Azure Container Registry (ACR)** | Store the Docker image |
-| Cloud Build | **`az acr build`** | Build the image in the cloud (no local Docker) |
-| `gcloud` CLI | **`az` CLI** | Drive everything from the terminal |
-| Vertex AI | **Azure AI Foundry / Azure OpenAI** | Managed model hosting, fine-tuning |
-| Cloud Storage | **Azure Blob Storage** | Store files, datasets, model weights, logs |
-| Cloud Monitoring / Logging | **Azure Monitor + Application Insights** | Metrics, logs, alerts |
-| IAM | **Azure RBAC + Managed Identity** | Who can access what |
 
 > In this hands-on we deploy the **app** (Container Apps + ACR). The right-hand
 > concepts (AI Foundry, Blob, Monitor, RBAC) are the production pieces you'd add as the
