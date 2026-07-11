@@ -25,7 +25,7 @@ on:
   push:
     branches: [feature/*]
     paths:
-      - '/app/**'
+      - 'app/**'
   pull_request:
     branches: [main]
     files:

@@ -52,7 +52,7 @@ else:
 
 app = FastAPI(
     title="GenAI App",
-    description="The Session 5 Demo",
+    description="The one Session 5 Demo",
     version="1.0.0",
 )
 
