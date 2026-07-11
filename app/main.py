@@ -100,7 +100,7 @@ def generate_ai_response(
     temperature: float = 0.7,
     max_tokens: int = 1000,
 ) -> str:
-    """Call Google Gemini and return the generated text."""
+    """Call Gemini and return the generated text."""
     if not client:
         raise HTTPException(status_code=503, detail="Gemini API client not initialized")
 
