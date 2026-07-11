@@ -24,7 +24,7 @@ name: CI - Test and Build GenAI App
 on:
   push:
     branches: [feature/*]
-    files:
+    paths:
       - '/app/**'
   pull_request:
     branches: [main]
