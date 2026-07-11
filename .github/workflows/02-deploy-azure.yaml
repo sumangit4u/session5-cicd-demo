@@ -35,7 +35,7 @@
 # run 02-azure-container-apps/deploy.ps1 (or .sh) ONCE first.
 # ============================================================================
 
-name: CI/CD - Build, Test and Deploy GenAI App to Azure
+name: CI/CD - Build, Test and Deploy GenAI to Azure
 
 # ---- Step 1: Name and Trigger ----------------------------------------------
 # Deploy only on pushes to main (PRs get the CI-only workflow instead).
